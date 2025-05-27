@@ -1,0 +1,38 @@
+services:    
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    ports:
+      - 3000:3000
+    networks:
+      - aisearch
+  
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+    volumes:
+      - ./data/:/app/data
+    ports:
+      - 8000:8000
+    networks:
+      - aisearch
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes:
+      - ./nginx/server.conf:/etc/nginx/conf.d/server.conf
+    ports:
+      - 80:80
+    networks:
+      - aisearch
+    depends_on:
+      - frontend
+      - backend
+
+networks:
+  aisearch:
+    driver: bridge
