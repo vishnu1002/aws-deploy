@@ -1,0 +1,20 @@
+What is visual search and what are its advantages?
+Who are the primary stakeholders who use visual search in their enterprise?
+What is the main use of visual search?
+What is the different types of search algorithms used in visual search?
+What is the machine learning and how organizations use it?
+What is deep learning and why is it efficient than traditional machine learning algorithms?
+How can LLM be leveraged for a particular use case catered to a particular enterprise?
+who is mano ranjan and what are his skills
+What are the primary skill sets of Mano and show others who are similar to him?
+list people who are skilled in dotnet more than 3 years of experience?
+who can be the best fit for a cloud engineer?
+
+                    {item.results.retrieved_passages && (
+                      <Box mb={2}>
+                        <Typography variant="subtitle2" fontWeight="bold" mb={1}>Retrieved Passages:</Typography>
+                        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                          {item.results.retrieved_passages}
+                        </Typography>
+                      </Box>
+                    )}

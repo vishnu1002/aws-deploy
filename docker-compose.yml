@@ -1,0 +1,39 @@
+services:
+    frontend:
+        container_name: aisearch_frontend
+        build: ./frontend
+        ports:
+            - 3000:3000
+        networks:
+            - aisearch
+
+    backend:
+        container_name: aisearch_backend
+        build: ./backend
+        environment:
+            - PYTHONUNBUFFERED=1
+            - PYTHONDONTWRITEBYTECODE=1
+            - ENVIRONMENT=production
+        ports:
+            - 8000:8000
+        volumes:
+            - ./data/:/app/data/.
+        networks:
+            - aisearch
+
+    reverse-proxy:
+        container_name: aisearch_reverse_proxy
+        image: nginx:alpine
+        ports:
+            - 80:80
+        volumes:
+            - ./aisearch.conf:/etc/nginx/conf.d/aisearch.conf
+        networks:
+            - aisearch
+        depends_on:
+            - frontend
+            - backend
+
+networks:
+    aisearch:
+        driver: bridge

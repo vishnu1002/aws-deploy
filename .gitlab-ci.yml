@@ -1,0 +1,49 @@
+stages:
+  - setup
+  - push
+  - build_deploy
+
+variables:
+  SSH_OPTIONS: "-o StrictHostKeyChecking=no"  # Avoid SSH host key prompt
+  DEPLOY_DIR: "/home/navin.s/prod"  # Directory where apps will be deployed
+  REPO_NAME: "./*"
+  SSH_KEY_PATH: "~/.ssh/id_rsa"
+
+before_script:
+  - mkdir -p ~/.ssh
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+
+setup_server:
+  stage: setup
+  tags:
+    - linux
+  script:
+    - ssh $SSH_OPTIONS $SSH_USER@$SSH_HOST 
+ 
+
+push_code:
+  stage: push
+  tags:
+    - linux
+  script:
+    # Transfer frontend and backend code to server
+    - pwd && ls
+    - scp $SSH_OPTIONS -r $REPO_NAME $SSH_USER@$SSH_HOST:$DEPLOY_DIR
+    - echo "Code ported to the server"
+
+build_deploy:
+  stage: build_deploy
+  tags:
+    - linux
+  script:
+    - ssh $SSH_USER@$SSH_HOST "bash -s" <<EOF
+    - cd $DEPLOY_DIR
+    - echo $SSH_PASSWD | sudo -S docker-compose down || true
+    - echo $SSH_PASSWD | sudo -S docker-compose up --build -d
+
+      echo "Deployment complete"
+      EOF
+
+  only:
+    - main  # Run on the 'main' branch
