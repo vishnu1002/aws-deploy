@@ -35,4 +35,5 @@ services:
 
 networks:
   aisearch:
-    driver: bridge
+    external: true
+    name: aisearch
