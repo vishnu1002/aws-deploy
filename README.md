@@ -1,147 +1,110 @@
-# Enterprise Search Platform
+# AWS Deployment Documentation
 
-A powerful enterprise search platform that enables semantic search across various document types including resumes, policy documents, and reports. The platform uses advanced language models to provide accurate and context-aware search results.
+## Overview
+This repository contains the infrastructure and deployment configuration for a web application consisting of a frontend, backend, and Nginx reverse proxy. The setup is containerized using Docker and orchestrated with Docker Compose, while the infrastructure is managed using Terraform.
 
 ## Architecture
+The application consists of three main components:
+- **Frontend**: React application served on port 3000
+- **Backend**: Python FastAPI application running on port 8000
+- **Nginx**: Reverse proxy handling incoming requests on port 80
 
 ```mermaid
 graph TB
-    subgraph Frontend
-        UI[React Frontend]
-        Search[Search Interface]
-        Results[Results Display]
-        UI --> Search
-        Search --> Results
+    subgraph AWS["AWS Cloud"]
+        subgraph EC2["EC2 Instance"]
+            subgraph Docker["Docker Environment"]
+                subgraph Nginx["Nginx Container"]
+                    NginxProxy["Nginx Reverse Proxy<br/>Port 80"]
+                end
+                
+                subgraph Frontend["Frontend Container"]
+                    React["React App<br/>Port 3000"]
+                end
+                
+                subgraph Backend["Backend Container"]
+                    FastAPI["FastAPI App<br/>Port 8000"]
+                    DataVolume["Data Volume"]
+                end
+            end
+        end
+        
+        subgraph Security["Security Groups"]
+            SG1["Inbound: 80, 443"]
+            SG2["Internal: 3000, 8000"]
+        end
     end
-
-    subgraph Backend
-        API[FastAPI Server]
-        Models[LLM Models]
-        Models --> |Qwen| Qwen[Qwen Model]
-        Models --> |DeepSeek| DeepSeek[DeepSeek Model]
-        Models --> |Llama| Llama[Llama Model]
-        API --> Models
-    end
-
-    subgraph Data
-        Docs[Document Storage]
-        Docs --> |Resumes| Resumes[Resume Collection]
-        Docs --> |Policies| Policies[Policy Documents]
-        Docs --> |Reports| Reports[Reports Collection]
-    end
-
-    Frontend --> |HTTP Requests| Backend
-    Backend --> |Query Processing| Data
-    Data --> |Search Results| Backend
-    Backend --> |Response| Frontend
-```
-
-## Features
-
-- **Multi-Model Support**: Integration with multiple language models (Qwen, DeepSeek, Llama) for enhanced search capabilities
-- **Document Type Support**:
-  - Resume parsing and search
-  - Policy document analysis
-  - Report processing and indexing
-- **Semantic Search**: Advanced semantic search capabilities using state-of-the-art language models
-- **Modern UI**: React-based frontend with intuitive search interface
-- **RESTful API**: FastAPI backend providing robust API endpoints
-
-## Project Structure
-
-```
-enterprise_search/
-├── backend/
-│   ├── src/
-│   ├── api.py
-│   ├── server.py
-│   ├── qwen.py
-│   ├── deepseek.py
-│   └── llama.py
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   └── package.json
-└── data/
-    ├── Resume/
-    ├── policy_documents/
-    └── reports/
+    
+    Client["Client"] -->|HTTP/HTTPS| NginxProxy
+    NginxProxy -->|Forward Requests| React
+    NginxProxy -->|API Requests| FastAPI
+    FastAPI -->|Read/Write| DataVolume
+    
+    Security --> EC2
 ```
 
 ## Prerequisites
+- AWS Account with appropriate credentials
+- Terraform installed
+- Docker and Docker Compose
+- Node.js (v22)
+- Python 3.10+
+- Nginx
 
-- Python 3.8+
-- Node.js 14+
-- npm or yarn
-- Required Python packages (see backend/requirements.txt)
-- Required Node.js packages (see frontend/package.json)
+## Infrastructure Setup
 
-## Installation
+### 1. Terraform Configuration
+The infrastructure is defined in the `terraform` directory using Terraform. The main components include:
+- EC2 instance for hosting the application
+- Security groups for managing network access
+- Other AWS resources as needed
 
-### Backend Setup
+To initialize and apply the Terraform configuration:
+```bash
+cd terraform
+terraform init
+terraform plan
+terraform apply
+```
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+### 2. Server Setup
+The `install.sh` script in the terraform directory handles the initial server setup:
+- Updates system packages
+- Installs Python3 and pip
+- Installs Node.js using NVM
+- Installs Docker and Docker Compose
+- Installs and configures Nginx
+- Starts and enables required services
 
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Application Deployment
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 1. Docker Containers
+The application is containerized using Docker with the following components:
 
-4. Start the backend server:
-   ```bash
-   python 
-   ```
+#### Frontend Container
+- Based on Node.js 20 Alpine
+- Builds the React application
+- Serves the built files using `serve` on port 3000
 
-### Frontend Setup
+#### Backend Container
+- Based on Python 3.10 slim
+- Runs a FastAPI application using uvicorn
+- Exposes port 8000
+- Mounts a data volume for persistent storage
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
+#### Nginx Container
+- Based on Nginx Alpine
+- Acts as a reverse proxy
+- Handles routing between frontend and backend services
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### 2. Docker Compose
+The `docker-compose.yaml` file orchestrates all containers:
+- Creates a bridge network for container communication
+- Maps necessary ports
+- Sets up volume mounts
+- Manages container dependencies
 
-3. Start the development server:
-   ```bash
-   npm start
-   ```
-
-## API Endpoints
-
-The backend provides the following main endpoints:
-
-- `POST /api/search`: Perform semantic search across documents
-- `GET /api/models`: List available language models
-- `POST /api/analyze`: Analyze document content
-- `GET /api/health`: Health check endpoint
-
-## Data Organization
-
-The platform supports three main types of documents:
-
-1. **Resumes**: Stored in `data/resume/`
-   - Supports various resume formats
-   - Extracts key information and skills
-
-2. **Policy Documents**: Stored in `data/policy_documents/`
-   - Company policies and procedures
-   - Compliance documents
-   - Guidelines and standards
-
-3. **Reports**: Stored in `data/reports/`
-   - Business reports
-   - Analysis documents
-   - Research papers
-
+To start the application:
+```bash
+docker-compose up -d --build
+```
