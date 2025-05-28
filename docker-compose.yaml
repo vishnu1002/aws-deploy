@@ -23,10 +23,8 @@ services:
       - aisearch
 
   nginx:
-    image: nginx:alpine
-    container_name: nginx
-    volumes:
-      - ./nginx/server.conf:/etc/nginx/conf.d/server.conf
+    image: vishnu1001/aisearch-nginx
+    container_name: aisearch-nginx
     ports:
       - 80:80
     networks:
