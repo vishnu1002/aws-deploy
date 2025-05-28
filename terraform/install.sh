@@ -27,12 +27,7 @@ echo \
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Install Nginx
-apt install -y nginx
-
-# Start and enable services
-systemctl start nginx
-systemctl enable nginx
+# Start and enable Docker
 systemctl start docker
 systemctl enable docker
 
@@ -41,4 +36,3 @@ python3 --version
 node --version
 npm --version
 docker --version
-nginx -v
