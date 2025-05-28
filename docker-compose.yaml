@@ -27,10 +27,8 @@ services:
     container_name: aisearch-nginx
     ports:
       - 80:80
-      - 443:443
     volumes:
       - ./nginx/server.conf:/etc/nginx/conf.d/default.conf
-      - /etc/letsencrypt:/etc/letsencrypt
     networks:
       - aisearch
     depends_on:
@@ -39,5 +37,6 @@ services:
 
 networks:
   aisearch:
-    external: true
+    # external: true
     name: aisearch
+    driver: bridge
