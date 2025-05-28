@@ -10,17 +10,17 @@ services:
     networks:
       - aisearch
   
-  backend:
-    container_name: aisearch-backend
-    image: vishnu1001/aisearch-backend
-    # build:
-    #   context: ./backend
-    volumes:
-      - ./data/:/app/data
-    ports:
-      - 8000:8000
-    networks:
-      - aisearch
+  # backend:
+  #   container_name: aisearch-backend
+  #   image: vishnu1001/aisearch-backend
+  #   # build:
+  #   #   context: ./backend
+  #   volumes:
+  #     - ./data/:/app/data
+  #   ports:
+  #     - 8000:8000
+  #   networks:
+  #     - aisearch
 
   nginx:
     image: vishnu1001/aisearch-nginx
