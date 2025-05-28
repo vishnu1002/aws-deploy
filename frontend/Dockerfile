@@ -3,7 +3,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Set Node.js memory limit to 768MB (leaving some memory for the system)
-ENV NODE_OPTIONS="--max-old-space-size=768"
+# ENV NODE_OPTIONS="--max-old-space-size=768"
 
 COPY package*.json ./
 
